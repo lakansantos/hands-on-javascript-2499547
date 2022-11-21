@@ -9,16 +9,20 @@ import data from "./data.js";
 
 const mainContent = document.querySelector(".main-content");
 
-const Card = (data) => {
-  const imgData = data[0];
-  const dateNow = new Date();
-  const markup = `
-    <figure class="image">
-      <img
+const buildImgData = (imgData) => {
+  let srcset = `${imgData.urls.full} ${imgData.width}w`;
+
+  if (imgData.urls.regular) {
+    srcset += `, ${imgData.urls.regular} 1080w`;
+  }
+
+  if (imgData.urls.small) {
+    srcset += `, ${imgData.urls.small} 400w`;
+  }
+  const img = `
+   <img
         srcset="
-          ${imgData.urls.full} ${imgData.width}w,
-          ${imgData.urls.regular} 1080w,
-          ${imgData.urls.small} 400w
+          ${srcset}
         "
         sizes="(max-width: 450px) 400px, (max-width: 800) 1080px"
         src="${imgData.urls.regular}"
@@ -26,7 +30,26 @@ const Card = (data) => {
         height="${imgData.height}"
         alt="${imgData.description}"
         loading="lazy"
-      />
+      />`;
+
+  return img;
+};
+const properDateFormat = (imgData) => {
+  const dateNow = new Date();
+  const formattedDate = dateNow.toLocaleString("default", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  return formattedDate;
+};
+const Card = (data) => {
+  const imgData = data[0];
+
+  const markup = `
+    <figure class="image">
+     ${buildImgData(imgData)}
       <figcaption class="image__caption">
         <h3 class="image__title">${imgData.description}</h3>
         <div class="image__meta">
@@ -37,11 +60,7 @@ const Card = (data) => {
           <p>Uploaded on 
           <time class="image_date" datetime="${
             imgData.created_at
-          }"> ${dateNow.toLocaleString("default", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  })} </time>
+          }"> ${properDateFormat()}</time>
           </p>
           <p>
             <a href="${imgData.links.self}" class="image__link">
